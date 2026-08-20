@@ -1,6 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import userRoute from './routes/user_route';
+import productRoute from './routes/product_route';
+import { seedInitialData } from './services/product_services';
 
 
 const app = express();
@@ -22,13 +24,19 @@ app.get('/', (req, res) => {
 });
 
 
-app.use('/user', userRoute);
 
 
 // ✅ اتصال بقاعدة البيانات
 mongoose.connect('mongodb://localhost:27017/ecommerce')
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((error) => console.error('Error connecting to MongoDB:', error));
+.then(() => console.log('Connected to MongoDB'))
+.catch((error) => console.error('Error connecting to MongoDB:', error));
+
+app.use('/user', userRoute);
+app.use('/product', productRoute);
+
+seedInitialData()
+
+
 
 // ✅ تشغيل السيرفر
 app.listen(port, () => {
