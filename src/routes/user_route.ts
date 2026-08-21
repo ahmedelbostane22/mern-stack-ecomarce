@@ -10,7 +10,12 @@ router.post('/register', async (req, res) => {
     const result = await registerUser({ firstName, lastName, email, password });
     res.status(result.statuscode).json({ message: result.message, data: result.data });
   } catch (error: any) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ message: error.message 
+    , error:error
+
+
+    });
+
   }
 });
 

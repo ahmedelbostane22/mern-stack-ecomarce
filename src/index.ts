@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import userRoute from './routes/user_route';
 import productRoute from './routes/product_route';
+import cartRoute from './routes/cart_route';
 import { seedInitialData } from './services/product_services';
 
 
@@ -33,6 +34,7 @@ mongoose.connect('mongodb://localhost:27017/ecommerce')
 
 app.use('/user', userRoute);
 app.use('/product', productRoute);
+app.use('/cart', cartRoute);
 
 seedInitialData()
 
