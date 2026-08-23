@@ -86,9 +86,7 @@ export const addToCartRequest = async ({ productId, quantity, userId }: addItemC
     data: cart,
     statuscode: 200
   }
-  cart.save().then((cart) => {
-    return { data: cart,    statuscode: 200 };
-  })
+ 
 
 
 
@@ -129,3 +127,48 @@ export const addToCartRequest = async ({ productId, quantity, userId }: addItemC
 
 }
 
+interface deleteToCartRequest {
+    productId: any;
+    userId: string;
+  }
+
+export const deleteToCart = async ({ productId , userId  }: deleteToCartRequest)=>{
+    const cart = await getActiveCartForUser({userId});
+   const existsInCart = cart.items.find((item)=>item.product.toString()===productId);
+   if(!existsInCart){
+    return {data :"Item not found in cart", statuscode: 400};
+   }
+
+  const otherItem = cart.items.filter((item)=>item.product.toString() ! == productId);
+  cart.totalAmount -= existsInCart.unitPrice * existsInCart.quantity;
+  cart.items = otherItem;
+  await cart.save();
+  return {
+    data: cart,
+    statuscode: 200
+  }
+
+
+
+}
+
+const calculateTotalAmount = (items: cartItem[]): number => {
+    return items.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0);
+  };
+
+  interface clearCartRequest {
+    userId: string,
+  }
+
+
+ export const ClearCart = async({userId}:clearCartRequest) =>{
+   const cart = await getActiveCartForUser({userId});
+   cart.items = [];
+   cart.totalAmount = 0;
+   await cart.save();
+   return {
+    data: cart,
+    statuscode: 200
+  }
+
+  }
