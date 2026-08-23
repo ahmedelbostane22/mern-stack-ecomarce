@@ -1,17 +1,17 @@
-import express, { Request } from 'express';
+import express from 'express';
 
-import { CartServices } from '../services/cart_services';
+import { addToCartRequest, CartServices } from '../services/cart_services';
 import validateJwt from '../middelwares/validate_jwt';
+import { CustomRequest } from '../types/customRequest';
 
-interface CustomRequest extends Request {
-    user?: any;
-}
 
 const router = express.Router();
 
-router.get('/', validateJwt, async (req: CustomRequest, res) => {
+router.get('/', validateJwt, async (req, res) => {
+    const customReq = req as unknown as CustomRequest;
 
-    if (!req.user) {
+
+    if (!customReq.user) {
         res.status(401).send({
             success: false,
             message: "User not found in request"
@@ -19,7 +19,7 @@ router.get('/', validateJwt, async (req: CustomRequest, res) => {
         return;
     }
 
-    const userId = req.user._id.toString();
+    const userId = customReq.user._id.toString();
 
     const cart = await CartServices.getActiveCartForUser({
         userId
@@ -27,5 +27,15 @@ router.get('/', validateJwt, async (req: CustomRequest, res) => {
 
     res.status(200).send(cart);
 });
+
+
+router.post("/items" , validateJwt, async (req, res) => {
+    const customReq = req as unknown as CustomRequest;
+    const { productId, quantity } = req.body;
+    const userId = customReq.user._id.toString();
+    const response = await addToCartRequest({ productId , quantity , userId });
+    res.status(response.statuscode).send(response.data);
+})
+
 
 export default router;

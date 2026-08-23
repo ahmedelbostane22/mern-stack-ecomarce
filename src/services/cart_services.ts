@@ -22,21 +22,75 @@ const createCart = async ({userId}: CreateCartForUser) =>{
 }
 
 
-interface GetActiveCartForUser{
+interface   GetActiveCartForUser{
     userId: string
 }
 
-const getActiveCartForUser = async ({userId}: GetActiveCartForUser) =>{
+const getActiveCartForUser = async ({ userId }: GetActiveCartForUser) => {
+    try {
+        let cart = await CartModel.findOne({
+            userId,
+            status: 'pending'
+        });
 
-    try{
-        const cart = await CartModel.findOne({ userId, status: 'pending' });
-        return cart
-    }catch(err){
-        console.log(err)
+        if (!cart) {
+            cart = await CartModel.create({
+                userId,
+                totalAmount: 0,
+                status: 'pending'
+            });
+        }
+
+        return cart;
+
+    } catch (err) {
+        console.log(err);
+        throw err;
     }
-}
+};
 
 export const CartServices = {
     createCart,
     getActiveCartForUser
+};
+
+interface addItemCartRequest {
+    productId: any;
+    quantity: number;
+    userId: string;
+}
+
+export const addToCartRequest = async ({ productId, quantity, userId }: addItemCartRequest) => {
+
+  const  cart = await getActiveCartForUser({ userId });
+  const existsInCart = cart.items.find((item)=>item.product.toString()===productId);
+  if(existsInCart){
+    return {data :"Item already exists in cart", statuscode: 400};
+
+  }
+  const product = await ProductModel.findById(productId);
+  if(!product){
+    return {data :"Product not found", statuscode: 400};
+  }
+  if(product.stock<quantity){
+    return {data :"Product out of stock", statuscode: 400};
+  }
+  cart.items.push({
+    product: productId,
+    quantity,
+    unitPrice: product.price 
+  });
+  cart.totalAmount += product.price * quantity;
+  await cart.save();
+  return {
+    data: cart,
+    statuscode: 200
+  }
+  cart.save().then((cart) => {
+    return { data: cart,    statuscode: 200 };
+  })
+
+    
+
+
 }
