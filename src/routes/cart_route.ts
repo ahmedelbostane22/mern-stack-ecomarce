@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { addToCartRequest, CartServices } from '../services/cart_services';
+import { addToCartRequest, CartServices , updateToCart } from '../services/cart_services';
 import validateJwt from '../middelwares/validate_jwt';
 import { CustomRequest } from '../types/customRequest';
 
@@ -37,5 +37,12 @@ router.post("/items" , validateJwt, async (req, res) => {
     res.status(response.statuscode).send(response.data);
 })
 
+router.put("/items" , validateJwt, async (req, res)=>{
+     const customReq = req as unknown as CustomRequest;
+     const { productId, quantity } = req.body;
+     const userId = customReq.user._id.toString();
+     const response = await updateToCart({ productId , quantity , userId });
+     res.status(response.statuscode).send(response.data);
+})
 
 export default router;
