@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { addToCartRequest, CartServices , updateToCart , deleteToCart , ClearCart } from '../services/cart_services';
+import { addToCartRequest, CartServices , updateToCart , deleteToCart , ClearCart , checkout } from '../services/cart_services';
 import validateJwt from '../middelwares/validate_jwt';
 import { CustomRequest } from '../types/customRequest';
 
@@ -60,4 +60,31 @@ router.delete("/", validateJwt, async (req,res)=>{
     return res.status(response.statuscode).send(response.data);
 })
 
+router.post("/checkout", validateJwt, async (req, res) => {
+    try {
+        const customReq = req as unknown as CustomRequest;
+
+        const address = req.body.address;
+        const userId = customReq.user._id.toString();
+
+        const result = await checkout({
+            userId,
+            address
+        });
+
+        return res.status(result.statuscode).json({
+            success: true,
+            message: "Order created successfully",
+            order: result.data
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Checkout failed"
+        });
+    }
+});
 export default router;

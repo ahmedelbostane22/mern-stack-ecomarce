@@ -1,6 +1,7 @@
 
 import { cartItem } from "../models/cart";
 import { CartModel } from "../models/cart";
+import OrderModel, { OrderItem,  } from "../models/order";
 import { ProductModel } from "../models/product";
 import express from 'express';
 
@@ -139,7 +140,7 @@ export const deleteToCart = async ({ productId , userId  }: deleteToCartRequest)
     return {data :"Item not found in cart", statuscode: 400};
    }
 
-  const otherItem = cart.items.filter((item)=>item.product.toString() ! == productId);
+  const otherItem = cart.items.filter((item)=>item.product.toString() !== productId);
   cart.totalAmount -= existsInCart.unitPrice * existsInCart.quantity;
   cart.items = otherItem;
   await cart.save();
@@ -172,3 +173,62 @@ const calculateTotalAmount = (items: cartItem[]): number => {
   }
 
   }
+
+interface checkoutRequest {
+    userId: string,
+    address: string
+    
+  }
+
+
+
+
+export const checkout = async ({ userId, address }: checkoutRequest) => {
+    const cart = await getActiveCartForUser({ userId });
+
+    if (!address) {
+        return {
+            data: "Address not found",
+            statuscode: 400
+        };
+    }
+
+    const orderItems: OrderItem[] = [];
+
+    for (const item of cart.items) {
+        const product = await ProductModel.findById(item.product);
+
+        if (!product) {
+            throw new Error("Product not found");
+        }
+
+        const orderItem: OrderItem = {
+            productName: product.title,
+            productImage: product.image,
+            unitPrice: product.price,
+            quantity: item.quantity
+        };
+
+        orderItems.push(orderItem);
+    }
+
+    const order = await OrderModel.create({
+        items: orderItems,
+        totalAmount: cart.totalAmount,
+        address,
+        userId,
+        status: "pending"
+    });
+
+    cart.items = [];
+    cart.totalAmount = 0;
+
+    await cart.save();
+
+    return {
+        data: order,
+        statuscode: 200
+    };
+    
+};
+  
