@@ -1,6 +1,10 @@
 import UserModel from '../models/user';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import dotenv from "dotenv";
+dotenv.config();
+
+
 
 interface RegisterUserRequest {
   firstName: string;
@@ -61,6 +65,15 @@ else{
 
 
 const generateToken = (data: any) => {
-  const token = jwt.sign(data, "RPqBQ4yE/Y4E+NZsYFSXL6m6ommdp6YyXn9tPiUCRtY=" );
-  return token;
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
+        throw new Error("JWT_SECRET is not defined"
+              , 
+
+        );
+    }
+    console.log(secret);
+
+    return jwt.sign(data, secret);
 };

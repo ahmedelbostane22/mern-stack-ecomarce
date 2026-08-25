@@ -51,7 +51,7 @@ const validateJwt = (
     // 5. التحقق من JWT
     jwt.verify(
         token,
-        "RPqBQ4yE/Y4E+NZsYFSXL6m6ommdp6YyXn9tPiUCRtY=",
+       process.env.JWT_SECRET||"" ,
         async (err, payload) => {
 
             // 6. الـ Token غير صحيح

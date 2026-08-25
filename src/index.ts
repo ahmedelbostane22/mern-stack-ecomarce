@@ -1,10 +1,17 @@
 import express from 'express';
+
+import dotenv from "dotenv";
+
+dotenv.config();
 import mongoose from 'mongoose';
 import userRoute from './routes/user_route';
 import productRoute from './routes/product_route';
 import cartRoute from './routes/cart_route';
 import { seedInitialData } from './services/product_services';
 
+const result = dotenv.config();
+console.log("dotenv result:", result.error ?? "loaded");
+console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
 const app = express();
 const port = 3000;
@@ -28,7 +35,7 @@ app.get('/', (req, res) => {
 
 
 // ✅ اتصال بقاعدة البيانات
-mongoose.connect('mongodb://localhost:27017/ecommerce')
+mongoose.connect(process.env.DATABASE_URL as string)
 .then(() => console.log('Connected to MongoDB'))
 .catch((error) => console.error('Error connecting to MongoDB:', error));
 

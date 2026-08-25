@@ -98,35 +98,48 @@ export const addToCartRequest = async ({ productId, quantity, userId }: addItemC
     userId: string;
   }
   export const updateToCart = async ({ productId, quantity, userId }: updateToCartRequest) => {
-  const cart = await getActiveCartForUser({ userId });
-  const existsInCart = cart.items.find((item)=>item.product.toString()===productId);
-  if(!existsInCart){
-    return {data :"Item not found in cart", statuscode: 400};
-  }  
- const  product = await ProductModel.findById(productId);
-  if(!product){
-    return {data :"Product not found", statuscode: 400};
-  }
-  if(product.stock<quantity){
-    return {data :"Product out of stock", statuscode: 400};
-  }
-  let sum = 0;
-  existsInCart.quantity = quantity;
- const  otherItem = cart.items.filter((item)=>item.product.toString() !== productId);
-  let total = otherItem.reduce((acc , item)=> {
-     sum += item.unitPrice * item.quantity;
-     return sum; 
-  }, 0);
-  total += existsInCart.unitPrice * quantity;
-  cart.totalAmount = total;
-  await cart.save();
-  return {
-    data: cart,
-    statuscode: 200
-  }
-  
+    try {
+      const cart = await getActiveCartForUser({ userId });
+      const existsInCart = cart.items.find((item) => item.product.toString() === productId);
 
-}
+      if (!existsInCart) {
+        return { data: "Item not found in cart", statuscode: 400 };
+      }
+
+      const product = await ProductModel.findById(productId);
+      if (!product) {
+        return { data: "Product not found", statuscode: 400 };
+      }
+
+      if (product.stock < quantity) {
+        return { data: "Product out of stock", statuscode: 400 };
+      }
+
+      let sum = 0;
+      existsInCart.quantity = quantity;
+
+      const otherItem = cart.items.filter((item) => item.product.toString() !== productId);
+      let total = otherItem.reduce((acc, item) => {
+        sum += item.unitPrice * item.quantity;
+        return sum;
+      }, 0);
+
+      total += existsInCart.unitPrice * quantity;
+      cart.totalAmount = total;
+      await cart.save();
+
+      return {
+        data: cart,
+        statuscode: 200
+      };
+    } catch (err) {
+      console.log(err);
+      return {
+        data: "Something went wrong",
+        statuscode: 500
+      };
+    }
+  };
 
 interface deleteToCartRequest {
     productId: any;
@@ -134,8 +147,10 @@ interface deleteToCartRequest {
   }
 
 export const deleteToCart = async ({ productId , userId  }: deleteToCartRequest)=>{
-    const cart = await getActiveCartForUser({userId});
-   const existsInCart = cart.items.find((item)=>item.product.toString()===productId);
+    try{
+        
+        const cart = await getActiveCartForUser({userId});
+        const existsInCart = cart.items.find((item)=>item.product.toString()===productId);
    if(!existsInCart){
     return {data :"Item not found in cart", statuscode: 400};
    }
@@ -147,7 +162,10 @@ export const deleteToCart = async ({ productId , userId  }: deleteToCartRequest)
   return {
     data: cart,
     statuscode: 200
-  }
+}
+}catch(err){
+    console.log(err)
+}
 
 
 
@@ -163,14 +181,19 @@ const calculateTotalAmount = (items: cartItem[]): number => {
 
 
  export const ClearCart = async({userId}:clearCartRequest) =>{
-   const cart = await getActiveCartForUser({userId});
-   cart.items = [];
-   cart.totalAmount = 0;
+    try{
+        
+        const cart = await getActiveCartForUser({userId});
+        cart.items = [];
+        cart.totalAmount = 0;
    await cart.save();
    return {
     data: cart,
     statuscode: 200
   }
+}catch(err){
+    console.log(err)
+}
 
   }
 
@@ -184,6 +207,7 @@ interface checkoutRequest {
 
 
 export const checkout = async ({ userId, address }: checkoutRequest) => {
+    try {
     const cart = await getActiveCartForUser({ userId });
 
     if (!address) {
@@ -229,6 +253,13 @@ export const checkout = async ({ userId, address }: checkoutRequest) => {
         data: order,
         statuscode: 200
     };
+
+} catch (error: any) {
+    return {
+        data: error.message,
+        statuscode: 400
+    };
+}
     
 };
   

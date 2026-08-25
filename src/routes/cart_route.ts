@@ -8,9 +8,11 @@ import { CustomRequest } from '../types/customRequest';
 const router = express.Router();
 
 router.get('/', validateJwt, async (req, res) => {
+    try {
+        
     const customReq = req as unknown as CustomRequest;
 
-
+    
     if (!customReq.user) {
         res.status(401).send({
             success: false,
@@ -18,14 +20,21 @@ router.get('/', validateJwt, async (req, res) => {
         });
         return;
     }
-
+    
     const userId = customReq.user._id.toString();
-
+    
     const cart = await CartServices.getActiveCartForUser({
         userId
     });
-
+    
     res.status(200).send(cart);
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({
+        success: false,
+        message: "Get cart failed"
+    })
+}
 });
 
 
@@ -38,26 +47,67 @@ router.post("/items" , validateJwt, async (req, res) => {
 })
 
 router.put("/items" , validateJwt, async (req, res)=>{
-     const customReq = req as unknown as CustomRequest;
-     const { productId, quantity } = req.body;
-     const userId = customReq.user._id.toString();
-     const response = await updateToCart({ productId , quantity , userId });
-     res.status(response.statuscode).send(response.data);
+    try {
+        
+        const customReq = req as unknown as CustomRequest;
+        const { productId, quantity } = req.body;
+        const userId = customReq.user._id.toString();
+        const response = await updateToCart({ productId , quantity , userId });
+        res.status(response.statuscode).send(response.data);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Update cart failed"
+        })
+    }
 })
 
 router.delete("/items/:productId",validateJwt, async (req, res)=>{
-    const customReq = req as unknown as CustomRequest;
-    const productId = req.params.productId;
-    const userId = customReq.user._id.toString();
-    const response = await deleteToCart({ productId , userId });
-    res.status(response.statuscode).send(response.data);
+    try {
+        
+        const customReq = req as unknown as CustomRequest;
+        const productId = req.params.productId;
+        const userId = customReq.user._id.toString();
+        const response = await deleteToCart({ productId , userId });
+        if (!response) {
+            return res.status(500).json({
+                success: false,
+                message: "Delete cart item failed"
+            });
+        }
+        res.status(response.statuscode).send(response.data);
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Clear cart failed"
+        })
+
+    }
 })
 
 router.delete("/", validateJwt, async (req,res)=>{
+    try {
     const customReq = req as unknown as CustomRequest;
     const userId = customReq.user._id.toString();
     const response =await ClearCart({ userId });
+    if (!response) {
+        return res.status(500).json({
+            success: false,
+            message: "Clear cart failed"
+        });
+    }
     return res.status(response.statuscode).send(response.data);
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Clear cart failed"
+        });
+    }
 })
 
 router.post("/checkout", validateJwt, async (req, res) => {
