@@ -1,6 +1,10 @@
 import express from 'express';
 
 import dotenv from "dotenv";
+import cors from 'cors';
+
+
+
 
 dotenv.config();
 import mongoose from 'mongoose';
@@ -16,6 +20,7 @@ console.log("JWT_SECRET:", process.env.JWT_SECRET);
 const app = express();
 const port = 3000;
 app.use(express.json());
+app.use(cors());
 
 // ✅ Middleware لإضافة CSP
 // app.use((req, res, next) => {
