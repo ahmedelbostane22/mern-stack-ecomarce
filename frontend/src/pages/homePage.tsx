@@ -16,6 +16,9 @@ const HomePage = () => {
       try {
         const response = await fetch(productUrl);
         const data = await response.json();
+        if(!data){
+          throw new Error("Failed to fetch products"); 
+        }
         setProducts(data);
       } catch (error) {
         console.error("Error fetching products:", error);

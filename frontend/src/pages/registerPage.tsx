@@ -21,9 +21,14 @@ import {
 
 import { useState } from "react";
 import { registerUrl } from "../constants/api";
+import { useAuth } from "../context/Auth/authContext";
+import {useNavigate} from "react-router-dom"
+
 
 export const RegisterPage = () => {
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate()
 //   const [showConfirmPassword, setShowConfirmPassword] =
 //     useState(false);
 
@@ -74,27 +79,47 @@ const validateForm = () => {
     if (!validateForm()) {
       return;
     }
-   try {
-    const response = await fetch(registerUrl, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-    });
-    if(!response.ok){
-        throw new Error("Failed to register")
-        console.log(response)
+    if(!formData.firstName || !formData.lastName || !formData.email || !formData.password){
+      return
     }
-    const data = await response.json();
-    console.log(data);
-    setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
- 
-    })
+   try {
+
+const response = await fetch(registerUrl, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+});
+
+if (!response.ok) {
+    throw new Error("Failed to register");
+}
+
+const data = await response.json();
+
+console.log("REGISTER RESPONSE:", data);
+
+if (!data.data) {
+    throw new Error("Token not found");
+}
+
+// login(userName, token)
+login(formData.email, data.data);
+
+console.log("Email:", formData.email);
+console.log("Token:", data.data);
+
+navigate("/login");
+
+setFormData({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+});
+
+
 
 
        

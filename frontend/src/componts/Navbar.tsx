@@ -1,6 +1,7 @@
-import * as React from "react";
-import { styled, alpha } from "@mui/material/styles";
 
+import * as React from "react";
+
+import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -19,7 +20,11 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import CloseIcon from "@mui/icons-material/Close";
 
-/* ================= SEARCH ================= */
+import { useAuth } from "../context/Auth/authContext";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@mui/material";
+
+// ================= SEARCH =================
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -27,14 +32,11 @@ const Search = styled("div")(({ theme }) => ({
   backgroundColor: alpha(theme.palette.common.white, 0.12),
   border: "1px solid",
   borderColor: alpha(theme.palette.common.white, 0.2),
-
   "&:hover": {
     backgroundColor: alpha(theme.palette.common.white, 0.18),
   },
-
   marginLeft: theme.spacing(3),
   marginRight: theme.spacing(2),
-
   width: "100%",
   maxWidth: 500,
 
@@ -58,16 +60,17 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
   "& .MuiInputBase-input": {
     padding: theme.spacing(1.2, 1, 1.2, 0),
-
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-
     width: "100%",
   },
 }));
 
-/* ================= NAVBAR ================= */
+// ================= NAVBAR =================
 
 export default function Navbar() {
+  const { isAuthenticated, token, userName } = useAuth();
+  const navigate = useNavigate();
+
   const [anchorEl, setAnchorEl] =
     React.useState<null | HTMLElement>(null);
 
@@ -76,7 +79,11 @@ export default function Navbar() {
 
   const isMenuOpen = Boolean(anchorEl);
 
-  /* ================= ACCOUNT MENU ================= */
+  console.log("token:", token);
+  console.log("userName:", userName);
+  console.log("isAuthenticated:", isAuthenticated);
+
+  // ================= ACCOUNT MENU =================
 
   const handleProfileMenuOpen = (
     event: React.MouseEvent<HTMLElement>
@@ -88,7 +95,7 @@ export default function Navbar() {
     setAnchorEl(null);
   };
 
-  /* ================= MOBILE MENU ================= */
+  // ================= MOBILE MENU =================
 
   const handleMobileMenuOpen = () => {
     setMobileMenuOpen(true);
@@ -98,7 +105,7 @@ export default function Navbar() {
     setMobileMenuOpen(false);
   };
 
-  /* ================= ACCOUNT MENU ================= */
+  // ================= ACCOUNT MENU =================
 
   const renderMenu = (
     <Menu
@@ -270,22 +277,48 @@ export default function Navbar() {
               </Badge>
             </IconButton>
 
-            {/* Account */}
+            {/* ================= ACCOUNT ================= */}
 
-            <IconButton
-              color="inherit"
-              edge="end"
-              aria-label="account"
-              onClick={handleProfileMenuOpen}
-              sx={{
-                ml: 1,
-                "&:hover": {
-                  backgroundColor: alpha("#fff", 0.1),
-                },
-              }}
-            >
-              <AccountCircle />
-            </IconButton>
+            {isAuthenticated && userName && (
+              <>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: "#fff",
+                    ml: 1,
+                    fontWeight: 500,
+                  }}
+                >
+                  {userName}
+                </Typography>
+
+                <IconButton
+                  color="inherit"
+                  edge="end"
+                  aria-label="account"
+                  title={userName || "Account"}
+                  onClick={handleProfileMenuOpen}
+                  sx={{
+                    ml: 1,
+                    "&:hover": {
+                      backgroundColor: alpha("#fff", 0.1),
+                    },
+                  }}
+                >
+                  <AccountCircle />
+                </IconButton>
+              </>
+            )} 
+
+            {!isAuthenticated && (
+              <Button
+                variant="contained"
+                color="inherit"
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </Button>
+            )}
           </Box>
 
           {/* ================= MOBILE CART ================= */}
@@ -342,6 +375,7 @@ export default function Navbar() {
               sx={{
                 color: "white",
                 width: "100%",
+
                 "& input": {
                   padding: "10px 10px 10px 45px",
                 },
@@ -367,6 +401,7 @@ export default function Navbar() {
             backgroundColor: "#fff",
             zIndex: 1200,
             boxShadow: 4,
+
             display: {
               xs: "block",
               md: "none",
@@ -411,3 +446,4 @@ export default function Navbar() {
     </>
   );
 }
+

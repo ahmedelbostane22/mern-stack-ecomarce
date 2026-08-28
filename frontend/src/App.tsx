@@ -5,11 +5,12 @@ import  HomePage  from './pages/homePage';
 import { LoginPage } from './pages/loginPage';
 import { RegisterPage } from './pages/registerPage';
 import Navbar from './componts/Navbar';
+import AuthProvider from './context/Auth/authContextProvider';
 
 function App() {
 return (
 
-  
+<AuthProvider>  
   <BrowserRouter>
     <Navbar/>
   <Routes>
@@ -18,6 +19,7 @@ return (
     <Route path="/register" element={<RegisterPage />} />
   </Routes>
   </BrowserRouter>
+</AuthProvider>
 )
 
   
