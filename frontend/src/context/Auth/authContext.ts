@@ -5,13 +5,14 @@ interface AuthContextType {
   token: string | null;
   login: (userName: string, token: string) => void;
   isAuthenticated: boolean;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   userName: null,
   token: null,
   login: () => {},
-//   logout: () => {},
+  logout: () => {},
   isAuthenticated: false,
 });
 

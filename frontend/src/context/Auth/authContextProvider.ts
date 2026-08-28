@@ -19,6 +19,12 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         localStorage.setItem("userName", userName);
         localStorage.setItem("token", token);
     };
+    const logout = () => {
+        setUserName(null);
+        setToken(null);
+        localStorage.removeItem("userName");
+        localStorage.removeItem("token");
+    }
 
     return createElement(
         AuthContext.Provider,
@@ -28,17 +34,11 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
                 token,
                 login,
                 isAuthenticated: !!token,
-                // logout: () => {
-                //     setUserName(null);
-                //     setToken(null);
-                //     localStorage.removeItem("userName");
-                //     localStorage.removeItem("token");
-                // },
+                logout,
+                },
             },
-        },
-        children
-    );
+            children
+        );
 };
-
 export default AuthProvider;
 

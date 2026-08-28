@@ -68,7 +68,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 // ================= NAVBAR =================
 
 export default function Navbar() {
-  const { isAuthenticated, token, userName } = useAuth();
+  const { isAuthenticated, token, userName , logout } = useAuth();
   const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] =
@@ -105,6 +105,14 @@ export default function Navbar() {
     setMobileMenuOpen(false);
   };
 
+  //======================logout====================
+   
+  const handelLogout = () => {
+    logout();
+    navigate("/");
+    handleMobileMenuClose();
+  };
+
   // ================= ACCOUNT MENU =================
 
   const renderMenu = (
@@ -133,7 +141,7 @@ export default function Navbar() {
         Settings
       </MenuItem>
 
-      <MenuItem onClick={handleMenuClose}>
+      <MenuItem onClick={handelLogout}>
         Logout
       </MenuItem>
     </Menu>
