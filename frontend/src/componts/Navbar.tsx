@@ -23,6 +23,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useAuth } from "../context/Auth/authContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
+import { useCart } from "../context/Cart/cartContext";
 
 // ================= SEARCH =================
 
@@ -70,6 +71,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function Navbar() {
   const { isAuthenticated, token, userName , logout } = useAuth();
   const navigate = useNavigate();
+  const {cartItems} = useCart();
 
   const [anchorEl, setAnchorEl] =
     React.useState<null | HTMLElement>(null);
@@ -271,14 +273,17 @@ export default function Navbar() {
             <IconButton
               color="inherit"
               aria-label="shopping cart"
+
               sx={{
                 "&:hover": {
                   backgroundColor: alpha("#fff", 0.1),
                 },
               }}
+              onClick={() => navigate("/cart")}
+
             >
               <Badge
-                badgeContent={3}
+                badgeContent={cartItems.length}
                 color="error"
               >
                 <ShoppingCartIcon />

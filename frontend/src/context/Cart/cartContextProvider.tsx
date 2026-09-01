@@ -3,7 +3,7 @@
 import { useEffect, useState, type PropsWithChildren } from "react";
 import type { cartItem } from "../../model/cart";
 import { CartContext } from "./cartContext";
-import { cartUrl } from "../../constants/api";
+import { cartAddUrl, cartUrl } from "../../constants/api";
 import { useAuth } from "../Auth/authContext";
 
 const CartContextProvider = ({ children }: PropsWithChildren) => {
@@ -15,7 +15,7 @@ const CartContextProvider = ({ children }: PropsWithChildren) => {
   // =========================
   // Get Cart
   // =========================
- const getCart = async () => {
+const getCart = async () => {
   try {
     if (!token) {
       setCartItems([]);
@@ -42,10 +42,7 @@ const CartContextProvider = ({ children }: PropsWithChildren) => {
       throw new Error("Invalid cart response");
     }
 
-    // الـ cart نفسه مباشرة
-    const cart = data;
-
-    const formattedCartItems: cartItem[] = cart.items.map(
+    const formattedCartItems: cartItem[] = data.items.map(
       (item: any) => ({
         productId: item.product._id,
         title: item.product.title,
@@ -56,7 +53,7 @@ const CartContextProvider = ({ children }: PropsWithChildren) => {
     );
 
     setCartItems(formattedCartItems);
-    setTotalAmount(cart.totalAmount);
+    setTotalAmount(data.totalAmount);
 
   } catch (error) {
     console.error("Error fetching cart:", error);
@@ -66,57 +63,42 @@ const CartContextProvider = ({ children }: PropsWithChildren) => {
   // =========================
   // Add To Cart
   // =========================
-  const addToCart = async (productId: string) => {
-    try {
-      if (!token) {
-        throw new Error("User is not authenticated");
-      }
-
-      const response = await fetch(cartUrl, {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-
-        body: JSON.stringify({
-          productId,
-          quantity: 1,
-        }),
-      });
-
-      const data = await response.json();
-
-      console.log("ADD CART RESPONSE:", data);
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to add to cart");
-      }
-
-      if (!data || !data.items) {
-        throw new Error("Invalid cart response");
-      }
-
-      const cart = data.items;
-
-      const formattedCartItems: cartItem[] = cart.items.map(
-        (item: any) => ({
-          productId: item.product._id,
-          title: item.product.title,
-          image: item.product.image,
-          unitPrice: item.unitPrice,
-          quantity: item.quantity,
-        })
-      );
-
-      setCartItems(formattedCartItems);
-      setTotalAmount(cart.totalAmount);
-    } catch (error) {
-      console.error("Error adding to cart:", error);
+ const addToCart = async (productId: string) => {
+  try {
+    if (!token) {
+      throw new Error("User is not authenticated");
     }
-  };
 
+    const response = await fetch(cartAddUrl, {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+
+      body: JSON.stringify({
+        productId,
+        quantity: 1,
+      }),
+    });
+
+    const data = await response.json();
+
+    console.log("ADD CART RESPONSE:", data);
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to add to cart");
+    }
+
+    // بعد ما المنتج يتضاف في MongoDB
+    // نجيب الـ cart المحدث
+    await getCart();
+
+  } catch (error) {
+    console.error("Error adding to cart:", error);
+  }
+};
   // =========================
   // Load cart when token changes
   // =========================
