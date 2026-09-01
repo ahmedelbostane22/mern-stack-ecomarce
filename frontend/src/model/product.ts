@@ -1,10 +1,11 @@
-export interface Product extends Document {
-   id: number;
-   title: string;
-   image: string;
-   price: number;
-   stock: number;
-   description: string;
-   createdAt: Date;
-   updatedAt: Date;
- }
+
+export interface Product {
+  _id: string;
+  title: string;
+  image: string;
+  price: number;
+  stock: number;
+  description: string;
+  createdAt?: string;
+  updatedAt?: string;
+}

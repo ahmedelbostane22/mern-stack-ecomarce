@@ -8,14 +8,17 @@ import Navbar from './componts/Navbar';
 import AuthProvider from './context/Auth/authContextProvider';
 import { CartPage } from './pages/cartPage';
 import {ProtectedRoute} from "./componts/protectedRoute"
+import CartContextProvider from './context/Cart/cartContextProvider';
 
 function App() {
 return (
 
 <AuthProvider>  
+  <CartContextProvider>
   <BrowserRouter>
     <Navbar/>
   <Routes>
+
     <Route path="/" element={<HomePage />} />
     <Route path="/login" element={<LoginPage />} />
     <Route path="/register" element={<RegisterPage />} />
@@ -24,6 +27,7 @@ return (
     </Route>
   </Routes>
   </BrowserRouter>
+  </CartContextProvider>
 </AuthProvider>
 )
 

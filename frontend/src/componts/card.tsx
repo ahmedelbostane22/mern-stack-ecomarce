@@ -11,8 +11,9 @@ import Rating from "@mui/material/Rating";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import type { Product } from "../model/product";
-
-export default function ProductCard({id,title,image,price,}:Product) {
+import { useCart } from "../context/Cart/cartContext";
+export default function ProductCard({_id,title,image,price,}:Product) {
+  const {addToCart} = useCart();
   return (
     <Card
       sx={{
@@ -66,7 +67,7 @@ export default function ProductCard({id,title,image,price,}:Product) {
       {/* Product Image */}
 
       <CardMedia
-        id={String(id)}
+      
         component="img"
         height="260"
         image={image}
@@ -154,6 +155,7 @@ export default function ProductCard({id,title,image,price,}:Product) {
         {/* Add To Cart */}
 
         <Button
+          
           fullWidth
           variant="contained"
           startIcon={<ShoppingCartOutlinedIcon />}
@@ -163,6 +165,7 @@ export default function ProductCard({id,title,image,price,}:Product) {
             textTransform: "none",
             fontWeight: 600,
           }}
+          onClick={() => addToCart(String(_id))}
         >
           Add to Cart
         </Button>

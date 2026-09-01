@@ -1,39 +1,37 @@
-import { useEffect, useState } from "react";
-import { cartUrl } from "../constants/api";
-// import type { Cart } from "../model/cart";
-import { useAuth } from "../context/Auth/authContext";
+import { useCart } from "../context/Cart/cartContext";
 
 export const CartPage = () => {
-    const [cartItems, setCartItems] = useState<unknown[]>([]);
-    const { token } = useAuth();
+  const { cartItems, totalAmount } = useCart();
 
-    useEffect(() => {
-        const fetchCartItems = async () => {
-            try {
-                const response = await fetch(cartUrl, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                
-                if (!response.ok) {
-                    throw new Error("Failed to fetch cart items");
-                }
+  console.log("Cart Items:", cartItems);
 
-                const data = await response.json();
-                if (!data) {
-                    throw new Error("Failed to fetch cart items");
-                }
+  return (
+    <div>
+      <h1>Cart</h1>
 
-                setCartItems(data);
-            } catch (error) {
-                console.error("Error fetching cart items:", error);
-            }
-        };
+      {cartItems.length === 0 ? (
+        <p>Cart is empty</p>
+      ) : (
+        <>
+          {cartItems.map((item) => (
+            <div key={item.productId}>
+              <img
+                src={item.image}
+                alt={item.title}
+                width={100}
+              />
 
-        fetchCartItems();
-    }, [token]);
-    console.log(cartItems);
+              <h3>{item.title}</h3>
 
-    return <div>{cartItems.length ? JSON.stringify(cartItems) : "CartPage"}</div>;
+              <p>Price: {item.unitPrice}</p>
+
+              <p>Quantity: {item.quantity}</p>
+            </div>
+          ))}
+
+          <h2>Total: {totalAmount}</h2>
+        </>
+      )}
+    </div>
+  );
 };

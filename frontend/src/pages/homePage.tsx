@@ -16,6 +16,7 @@ const HomePage = () => {
       try {
         const response = await fetch(productUrl);
         const data = await response.json();
+        console.log(data);
         if(!data){
           throw new Error("Failed to fetch products"); 
         }
@@ -35,11 +36,12 @@ const HomePage = () => {
     <Container sx={{ mt: 10 }}>
       <Grid container spacing={2}>
         {products.map((product) => (
+          console.log(product),
           <Grid
-            key={product.id  ?? product.title}
+            key={product._id ?? product.title}
             size={{ xs: 12, sm: 6, md: 4 }}
           >
-            <ProductCard  {...product} />
+            <ProductCard {...product} />
           </Grid>
         ))}
       </Grid>

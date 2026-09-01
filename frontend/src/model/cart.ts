@@ -1,9 +1,11 @@
-import type { Product } from "./product";
 
-interface cartItem {
-    product: Product;
+export interface cartItem {
+    productId: string;
+    title: string;
     quantity: number;
     unitPrice: number;
+    image: string;
+
 }
 
 export interface Cart {
